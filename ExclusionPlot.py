@@ -9,6 +9,7 @@ class ExclusionPlot(object):
     #_______________________________________________________________________________
     def __init__(self, name='dummy', xlabel='xlabel', ylabel='ylabel',
                  xmin=0.0, xmax=10.0, ymin=1.e-3, ymax=1.e-1,
+                 model='MajoranaNeutrinoElectron',
                  dimx=7, dimy=5,
                  logx=True, logy=True):
 
@@ -30,28 +31,12 @@ class ExclusionPlot(object):
         self.logx = logx
         self.logy = logy
 
+        self.model = model
+
     #_______________________________________________________________________________
     def add_limit(self, limit):
-
-
-        x_data = limit.x_data
-        y_data = limit.y_data
-
-        x_data.append(10)
-        y_data.append(0.01)
-        x_data.append(0.1)
-        y_data.append(0.01)
-        x_data.append(0.1)
-        y_data.append(0.00001)
-
-        print(x_data)
-        print(y_data)
-
-
-        self.ax.fill(x_data, y_data,
-                             color=limit.color,  alpha=limit.alpha)
-
-        #self.ax.scatter(limit.x_data, limit.y_data, color='r')
+        self.ax.fill(limit.x_data, limit.y_data,
+                     color=limit.color,  alpha=limit.alpha)
 
     #_______________________________________________________________________________
     def plot(self):

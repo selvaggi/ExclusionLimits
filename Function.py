@@ -16,18 +16,23 @@ class Function(object):
         if path.exists(file):
             with open(file) as csvfile:
                 ## skip header
-                next(csvfile)
-                reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+                #next(csvfile)
+                reader = csv.reader(csvfile, delimiter='\t', quotechar='"')
                 id = 0
                 for data in reader:
+                    #print (data)
                     self.x.append(float(data[0]))
                     self.y.append(float(data[1]))
 
 
     #_______________________________________________________________________________
     def eval(self, x):
-        tck = interpolate.splrep(self.x, self.y)
-        val =  interpolate.splev(x, tck)
+
+        val=0
+        if x <= max(self.x) and x >= min(self.x):
+            f = interpolate.interp1d(self.x, self.y, kind='cubic')
+            val = f(x)
+
         return val
 
     #_______________________________________________________________________________
@@ -42,8 +47,21 @@ class Function(object):
         yr = []
 
         for x, y in zip(self.x,self.y):
-            xr.append(x*scale)
+            xr.append(x)
             yr.append(y*scale)
+
+        self.x = xr
+        self.y = yr
+
+#_______________________________________________________________________________
+    def pow_data(self, power=1.0):
+
+        xr = []
+        yr = []
+
+        for x, y in zip(self.x,self.y):
+            xr.append(x)
+            yr.append(y**power)
 
         self.x = xr
         self.y = yr
