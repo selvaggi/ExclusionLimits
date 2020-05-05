@@ -44,11 +44,19 @@ def main():
 
     class Parameters(object):
         ns0=1.e15   ## number of bb pairs at HL-LHC
-        meson_br= meson_br_B0  ## fraction of Bmesons produced in particular mode
-        trigger_eff=0.01   ## B-parking / or whatever other cuts needed to trigger
+        trigger_eff=1   ## B-parking / or whatever other cuts needed to trigger
         eta_eff=0.1 ## acceptance for the Bmeson to go in particular direction
 
         llp_br='data/br_BpD0str_eXN.csv'
+
+        ## fraction of Bmesons produced in particular mode
+        list_brs = [
+                    (meson_br_Bp,'data/br_BpD0str_eXN.csv'),
+                    (meson_br_Bp,'data/br_Bp_eN.csv'),
+                    (meson_br_B0,'data/br_B0_pipeN.csv'),
+                    (meson_br_Bc,'data/br_Bc_eXN.csv'),
+                   ]
+
         r_min=0.25
         r_max=1.05
         z_min=10.
@@ -58,15 +66,13 @@ def main():
         color='red'
         alpha=0.5
 
-    nose_limits_B0 = OrderedDict()
-    nose_limits_Bc = OrderedDict()
-
-
+    nose_limits = OrderedDict()
     for target in isolines:
-        nose_limits_B0[target] = best_limit(ExclusionPlot=ep, parameters=Parameters,
+        nose_limits[target] = best_limit(ExclusionPlot=ep, parameters=Parameters,
                                          target=target, npoints=npoints)
 
 
+    '''
     Parameters.meson_br = meson_br_Bc
     Parameters.llp_br = 'data/br_Bc_eXN.csv'
     Parameters.color = 'red'
@@ -75,14 +81,31 @@ def main():
         nose_limits_Bc[target] = best_limit(ExclusionPlot=ep, parameters=Parameters,
                                          target=target, npoints=npoints)
 
-    '''
-    model_class = globals()[ep.model]
-    model = model_class(Parameters, mass=2.9763514416313175, coupling=0.008)
+    Parameters.meson_br = meson_br_B0
+    Parameters.llp_br = 'data/br_B0_pipeN.csv'
+    Parameters.color = 'red'
 
-    model.compute_lifetime()
-    model.compute_branching_ratio(Parameters.llp_br)
-    model.event_yield(debug=True)
+    for target in isolines:
+        nose_limits_B0_pipeN[target] = best_limit(ExclusionPlot=ep, parameters=Parameters,
+                                                  target=target, npoints=npoints)
+
+
+    Parameters.meson_br = meson_br_Bp
+    Parameters.llp_br = 'data/br_Bp_eN.csv'
+    Parameters.color = 'red'
+
+    for target in isolines:
+        nose_limits_Bp_eN[target] = best_limit(ExclusionPlot=ep, parameters=Parameters,
+                                               target=target, npoints=npoints)
+
     '''
+    #model_class = globals()[ep.model]
+    #model = model_class(Parameters, mass=2.9763514416313175, coupling=0.008)
+
+    #model.compute_lifetime()
+    #model.compute_branching_ratio(Parameters.llp_br)
+    #model.event_yield(debug=True)
+
 
 
     ## inclusive limit from all experiments
@@ -97,7 +120,7 @@ def main():
     lim_cms = Limit(name='CMS - WNe (HL-LHC)', color='light blue', alpha=0.5)
     func = Function('ex_pres', 'data/limit_HNL_UNe_CMS_137invfb.csv')
     func.pow_data(0.5) ## take sqrt to convert
-    func.scale_data(math.sqrt(137/3000)) ## take sqrt to convert
+    func.scale_data(math.sqrt(137./3000.)) ## take sqrt to convert
     lim_cms.set_func(func)
 
     ep.add_limit(lim_present)
@@ -105,11 +128,8 @@ def main():
     ep.add_limit(lim_cms)
 
 
-    for target in nose_limits_B0.keys():
-        ep.add_limit(nose_limits_B0[target])
-
-    for target in nose_limits_Bc.keys():
-        ep.add_limit(nose_limits_Bc[target])
+    for target in nose_limits.keys():
+        ep.add_limit(nose_limits[target])
 
     ep.plot()
 

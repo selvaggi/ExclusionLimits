@@ -10,7 +10,6 @@ class Model(ABC):
 
         self.ns0 = parameters.ns0
         self.trigger_eff = parameters.trigger_eff
-        self.meson_br = parameters.meson_br
         self.eta_eff = parameters.eta_eff
 
         self.r_min = parameters.r_min
@@ -24,7 +23,9 @@ class Model(ABC):
         self.coupling = coupling
 
         self.tau = -1
-        self.br = -1
+        self.brs = dict()
+        for br in parameters.list_brs:
+            self.brs[br]=-1
 
         super(Model, self).__init__()
 
@@ -61,13 +62,17 @@ class Model(ABC):
 
         acceptance=math.exp(-l_min/gct) - math.exp(-l_max/gct)
 
-        br = self.br
-        event_yield = self.ns0
-        event_yield *= self.meson_br
-        event_yield *= self.trigger_eff
-        event_yield *= self.eta_eff
-        event_yield *= br
-        event_yield *= acceptance
+        event_yield = 0
+
+        for b in self.brs.keys():
+            br = self.brs[b]
+            yld = self.ns0
+            yld *= b[0]
+            yld *= self.trigger_eff
+            yld *= self.eta_eff
+            yld *= br
+            yld *= acceptance
+            event_yield += yld
 
         if debug:
             print ('mass          =   {:.3f} '.format(self.mass))
@@ -100,7 +105,7 @@ class Model(ABC):
 
     #_______________________________________________________________________________
     @abstractmethod
-    def compute_branching_ratio(self):
+    def compute_branching_ratios(self):
         pass
 
     #_______________________________________________________________________________
@@ -111,6 +116,7 @@ class MajoranaNeutrinoElectron(Model):
     def compute_lifetime(self):
         self.tau = 1.e-12/self.mass**5/self.coupling**2
 
-    def compute_branching_ratio(self, data_file):
-        br_vs_m = Function('br_b0', data_file)
-        self.br = br_vs_m.eval(self.mass) * self.coupling**2
+    def compute_branching_ratios(self, list_br):
+        for br in list_br:
+            br_vs_m = Function('br', br[1])
+            self.brs[br]=br_vs_m.eval(self.mass) * self.coupling**2
