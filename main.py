@@ -61,10 +61,10 @@ def main():
         r_max=1.05
         z_min=10.
         z_max=10.5
-        pt=10.
+        pt=5.
         name='Nose'
         color='red'
-        alpha=0.5
+        alpha=0.2
 
     nose_limits = OrderedDict()
     for target in isolines:

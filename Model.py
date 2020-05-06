@@ -53,7 +53,9 @@ class Model(ABC):
         l_max = self.z_max/math.cos(theta)
 
         c=3.e+8
-        energy = self.pt*math.cosh(eta)
+
+        ## compute energy of LLP, assume half of energy of mother meson
+        energy = 0.5*self.pt*math.cosh(eta)
 
         gamma=energy/self.mass
         tau = self.tau
